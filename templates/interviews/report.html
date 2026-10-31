@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Interview report · {{ interview.role }}{% endblock %}
+{% block content %}
+<div class="report-topline"><a class="back-link" href="{% url 'dashboard' %}">← Dashboard</a><span class="report-label">PERFORMANCE REPORT</span></div>
+<section class="report-hero mb-4">
+  <div><span class="eyebrow">SESSION COMPLETE</span><h1>Your effort. <span class="gradient-text">Your next step.</span></h1><p class="lead mb-0">{{ interview.role }} <span class="muted">·</span> {{ interview.level }} <span class="muted">·</span> {{ interview.created_at|date:"M j, Y" }}</p></div>
+  <a href="{% url 'home' %}" class="btn btn-primary">Practice again <span aria-hidden="true">→</span></a>
+</section>
+
+<section class="row g-3 mb-4" aria-label="Report summary">
+  <div class="col-6 col-xl-3"><article class="metric"><div class="metric-top"><span class="metric-icon">↗</span><span class="metric-label">Average score</span></div><strong>{{ interview.average_score }}<span class="metric-unit">/10</span></strong><small>Overall answer quality</small></article></div>
+  <div class="col-6 col-xl-3"><article class="metric"><div class="metric-top"><span class="metric-icon">✓</span><span class="metric-label">Questions answered</span></div><strong>{{ responses|length }}<span class="metric-unit">/{{ interview.number_of_questions }}</span></strong><small>Answers submitted</small></article></div>
+  <div class="col-6 col-xl-3"><article class="metric"><div class="metric-top"><span class="metric-icon">◷</span><span class="metric-label">Average time</span></div><strong>{{ avg_time }}<span class="metric-unit">s</span></strong><small>Time per answer</small></article></div>
+  <div class="col-6 col-xl-3"><article class="metric"><div class="metric-top"><span class="metric-icon">!</span><span class="metric-label">Overtime answers</span></div><strong>{{ overtime_count }}</strong><small>Answers over the limit</small></article></div>
+</section>
+
+<section class="row g-3 mb-4">
+  <div class="col-lg-6">
+    <article class="panel insight-panel h-100">
+      <div class="insight-heading"><span class="insight-icon strength-icon">↗</span><div><h2 class="h5 mb-1">Strengths</h2><p class="muted small mb-0">Topics where you scored strongly</p></div></div>
+      <div class="topic-pills">{% for topic in strong_topics %}<span class="topic-pill topic-good">{{ topic }}</span>{% empty %}<p class="muted mb-0">Keep practising to identify consistent strengths. Review the feedback below for specific wins.</p>{% endfor %}</div>
+    </article>
+  </div>
+  <div class="col-lg-6">
+    <article class="panel insight-panel h-100">
+      <div class="insight-heading"><span class="insight-icon improve-icon">✧</span><div><h2 class="h5 mb-1">Areas to improve</h2><p class="muted small mb-0">Topics to revisit before your next session</p></div></div>
+      <div class="topic-pills">{% for topic in weak_topics %}<span class="topic-pill topic-warn">{{ topic }}</span>{% empty %}<p class="muted mb-0">No low-scoring topics were identified. Keep building consistency and clarity.</p>{% endfor %}</div>
+    </article>
+  </div>
+</section>
+
+<section class="panel mb-4">
+  <div class="section-heading">
+    <div><span class="eyebrow">ANSWER SCORES</span><h2 class="h4 mb-1">Performance by question</h2><p class="muted mb-0">Use each score as a starting point for reflection.</p></div>
+  </div>
+  {% if responses %}
+    <div class="score-list">
+      {% for response in responses %}
+      <div class="score-row">
+        <div class="score-row-label"><span>Q{{ response.question.order }}</span><strong>{{ response.score }}/10</strong></div>
+        <div class="score-row-track"><div class="score-row-fill {% if response.score < 6 %}score-low{% elif response.score >= 8 %}score-high{% endif %}" style="width:{{ response.score }}0%"></div></div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted mb-0">No answers have been submitted yet.</p>
+  {% endif %}
+</section>
+
+<section class="feedback-section">
+  <div class="section-heading mb-3"><div><span class="eyebrow">REVIEW & LEARN</span><h2 class="h4 mb-1">Answer-by-answer feedback</h2><p class="muted mb-0">Read the feedback, then try explaining the same idea again.</p></div></div>
+  {% for response in responses %}
+  <article class="panel feedback-card mb-3">
+    <div class="feedback-card-top">
+      <div><span class="eyebrow">QUESTION {{ response.question.order|stringformat:"02d" }}</span><h3 class="h5 mt-2 mb-2">{{ response.question.text }}</h3><div class="muted small">{{ response.question.get_question_type_display }} · {{ response.elapsed_seconds }} seconds{% if response.overtime %} · Overtime{% endif %}</div></div>
+      <div class="feedback-score {% if response.score < 6 %}feedback-score-low{% elif response.score >= 8 %}feedback-score-high{% endif %}">{{ response.score }}<span>/10</span></div>
+    </div>
+    <div class="feedback-content">
+      <div class="feedback-block"><h4>Your answer</h4><p class="answer-text">{{ response.answer|default:"No answer submitted." }}</p></div>
+      <div class="feedback-block"><h4>What to cover</h4><p>{{ response.key_points|default:"Aim for a direct answer, explain the reasoning, and include a relevant example." }}</p></div>
+      <div class="feedback-block feedback-callout"><h4>AI feedback</h4><p class="mb-0">{{ response.feedback|default:"Keep practising clear, structured answers with examples." }}</p></div>
+    </div>
+  </article>
+  {% empty %}
+    <div class="panel empty-state"><h3 class="h5">No feedback yet</h3><p class="muted mb-0">Submit an answer during an interview to see feedback here.</p></div>
+  {% endfor %}
+</section>
+<div class="report-bottom-actions mt-4"><a href="{% url 'dashboard' %}" class="btn btn-outline-light">Back to dashboard</a><a href="{% url 'home' %}" class="btn btn-primary">Start another interview <span aria-hidden="true">→</span></a></div>
+{% endblock %}

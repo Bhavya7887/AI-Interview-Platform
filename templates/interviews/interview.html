@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Interview · {{ interview.role }}{% endblock %}
+
+{% block content %}
+
+<div class="interview-topline">
+  <a class="back-link" href="{% url 'dashboard' %}">← Dashboard</a>
+
+  <span class="live-label">
+    <span class="status-dot"></span>
+    SESSION IN PROGRESS
+  </span>
+</div>
+
+<section class="interview-heading mb-4">
+  <div>
+    <div class="eyebrow">
+      {{ interview.level }}
+      <span class="eyebrow-separator">/</span>
+      {{ interview.role }}
+    </div>
+
+    <h1>Focus on the question.</h1>
+
+    <p class="muted mb-0">
+      Think clearly, explain your reasoning, and answer in your own words.
+    </p>
+  </div>
+
+  <div class="timer-card">
+    <span class="timer-caption">TIME REMAINING</span>
+
+    <div
+      class="timer"
+      id="timer"
+      data-limit="{{ interview.seconds_per_question }}"
+    >
+      {{ interview.seconds_per_question }}s
+    </div>
+  </div>
+</section>
+
+
+<section class="panel question-panel mb-3">
+
+  <div class="question-meta">
+    <span class="question-counter">
+      QUESTION {{ question.order|stringformat:"02d" }}
+      <span>/ {{ interview.number_of_questions|stringformat:"02d" }}</span>
+    </span>
+
+    <span class="badge question-type">
+      {{ question.get_question_type_display }}
+    </span>
+  </div>
+
+  <div
+    class="progress interview-progress"
+    role="progressbar"
+    aria-label="Interview progress"
+    aria-valuenow="{{ progress_percent }}"
+    aria-valuemin="0"
+    aria-valuemax="100"
+  >
+    <div
+      class="progress-bar"
+      style="width: {{ progress_percent }}%"
+    ></div>
+  </div>
+
+  <h2 class="question-text">{{ question.text }}</h2>
+
+  {% if question.hint %}
+    <div class="question-hint">
+      <span>✧</span> {{ question.hint }}
+    </div>
+  {% else %}
+    <div class="question-hint">
+      <span>✧</span>
+      Tip: structure your answer and support it with an example where possible.
+    </div>
+  {% endif %}
+
+</section>
+
+
+<section class="panel answer-panel">
+
+  <form
+    id="answer-form"
+    method="post"
+    action="{% url 'submit_answer' interview.public_id %}"
+  >
+
+    {% csrf_token %}
+
+    <div class="answer-heading">
+      <div>
+        <label class="form-label mb-1">
+          {% if question.question_type == "mcq" %}
+            Select your answer
+          {% elif question.question_type == "true_false" %}
+            Choose True or False
+          {% elif question.question_type == "coding" %}
+            Write your code
+          {% elif question.question_type == "debugging" %}
+            Find and fix the issue
+          {% else %}
+            Your answer
+          {% endif %}
+        </label>
+
+        <p class="muted small mb-0">
+          {% if question.question_type == "mcq" %}
+            Select the most appropriate option.
+          {% elif question.question_type == "true_false" %}
+            Decide whether the statement is true or false.
+          {% elif question.question_type == "coding" %}
+            Write a clear solution. Include comments if helpful.
+          {% elif question.question_type == "debugging" %}
+            Explain the problem and provide the corrected code or solution.
+          {% else %}
+            Be specific. Explain your reasoning where relevant.
+          {% endif %}
+        </p>
+      </div>
+
+      <span class="answer-limit">Up to 10,000 characters</span>
+    </div>
+
+
+    {# MULTIPLE CHOICE #}
+
+    {% if question.question_type == "mcq" and question.options %}
+
+      <div class="answer-options mb-4">
+
+        {% for option in question.options %}
+
+          <label class="answer-option d-flex align-items-start gap-3 mb-3">
+
+            <input
+              type="radio"
+              name="answer"
+              value="{{ option }}"
+              class="form-check-input mt-1"
+              {% if response %}disabled{% endif %}
+              required
+            >
+
+            <span>{{ option }}</span>
+
+          </label>
+
+        {% endfor %}
+
+      </div>
+
+
+    {# TRUE / FALSE #}
+
+    {% elif question.question_type == "true_false" %}
+
+      <div class="answer-options mb-4">
+
+        <label class="answer-option d-flex align-items-center gap-3 mb-3">
+
+          <input
+            type="radio"
+            name="answer"
+            value="True"
+            class="form-check-input"
+            {% if response %}disabled{% endif %}
+            required
+          >
+
+          <span>
+            <strong>True</strong>
+            <br>
+            <small class="muted">The statement is correct.</small>
+          </span>
+
+        </label>
+
+        <label class="answer-option d-flex align-items-center gap-3 mb-3">
+
+          <input
+            type="radio"
+            name="answer"
+            value="False"
+            class="form-check-input"
+            {% if response %}disabled{% endif %}
+            required
+          >
+
+          <span>
+            <strong>False</strong>
+            <br>
+            <small class="muted">The statement is incorrect.</small>
+          </span>
+
+        </label>
+
+      </div>
+
+
+    {# SHORT ANSWER, CODING, DEBUGGING, SCENARIO AND OTHER TYPES #}
+
+    {% else %}
+
+      <textarea
+        id="answer"
+        name="answer"
+        class="form-control answer-editor mb-3"
+        rows="{% if question.question_type == 'coding' or question.question_type == 'debugging' %}14{% else %}9{% endif %}"
+        maxlength="10000"
+        placeholder="{% if question.question_type == 'coding' %}Write your code here...{% elif question.question_type == 'debugging' %}Explain the bug and write the corrected solution...{% elif question.question_type == 'scenario' or question.question_type == 'situational' %}Explain how you would handle this situation...{% elif question.question_type == 'short_answer' %}Write your answer here...{% else %}Start writing your answer here...{% endif %}"
+        {% if response %}disabled{% else %}required{% endif %}
+      ></textarea>
+
+    {% endif %}
+
+
+    <input
+      type="hidden"
+      id="elapsed_seconds"
+      name="elapsed_seconds"
+      value="0"
+    >
+
+
+    <div class="answer-footer">
+
+      <span class="muted small">
+        <span class="privacy-dot"></span>
+        Submitted answers are evaluated and saved to your report.
+      </span>
+
+      <button
+        id="submit-btn"
+        class="btn btn-primary btn-lg"
+        type="submit"
+        {% if response %}disabled{% endif %}
+      >
+        Submit answer <span aria-hidden="true">→</span>
+      </button>
+
+    </div>
+
+  </form>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+(() => {
+  const timer = document.getElementById("timer");
+  const form = document.getElementById("answer-form");
+  const elapsedInput = document.getElementById("elapsed_seconds");
+  const submitButton = document.getElementById("submit-btn");
+
+  if (!timer || !form || !elapsedInput || !submitButton) {
+    return;
+  }
+
+  const limit = Math.max(1, Number(timer.dataset.limit || 90));
+  const started = Date.now();
+
+  let intervalId;
+
+  function tick() {
+    const elapsed = Math.floor((Date.now() - started) / 1000);
+    const remaining = Math.max(0, limit - elapsed);
+
+    timer.textContent = remaining > 0
+      ? `${remaining}s`
+      : "Time exceeded";
+
+    timer.classList.toggle("timer-warning", remaining <= 15);
+
+    if (remaining <= 15) {
+      timer.classList.add("timer-urgent");
+    }
+  }
+
+  tick();
+
+  intervalId = window.setInterval(tick, 1000);
+
+  form.addEventListener("submit", (event) => {
+    if (!form.checkValidity()) {
+      event.preventDefault();
+      form.reportValidity();
+      return;
+    }
+
+    elapsedInput.value = Math.floor((Date.now() - started) / 1000);
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Evaluating answer…";
+
+    window.clearInterval(intervalId);
+  });
+})();
+</script>
+
+{% endblock %}

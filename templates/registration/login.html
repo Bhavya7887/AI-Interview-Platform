@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Log in · AI Interviewer{% endblock %}
+{% block content %}
+<div class="auth-layout">
+  <section class="auth-story">
+    <span class="eyebrow">WELCOME BACK</span>
+    <h1>Your next opportunity starts with <span class="gradient-text">practice.</span></h1>
+    <p class="lead">Pick up your progress, sharpen your answers and build confidence one session at a time.</p>
+    <div class="auth-points"><div><span>✦</span><div><strong>Focused practice</strong><small>Prepare for your target role.</small></div></div><div><span>↗</span><div><strong>Actionable feedback</strong><small>Learn what to improve next.</small></div></div></div>
+  </section>
+  <section class="panel auth-card">
+    <div class="auth-card-head"><span class="brand-mark">AI</span><div><h2 class="h4 mb-1">Sign in</h2><p class="muted mb-0">Access your private workspace.</p></div></div>
+    {% if form.errors %}<div class="alert alert-danger">Username or password is incorrect. Please try again.</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="mb-3"><label class="form-label" for="id_username">Username</label><input class="form-control" type="text" name="username" id="id_username" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}"></div>
+      <div class="mb-4"><label class="form-label" for="id_password">Password</label><input class="form-control" type="password" name="password" id="id_password" autocomplete="current-password" required></div>
+      <button class="btn btn-primary btn-lg w-100" type="submit">Log in <span aria-hidden="true">→</span></button>
+    </form>
+    <p class="auth-switch mb-0">New to AI Interviewer? <a href="{% url 'register' %}">Create an account</a></p>
+  </section>
+</div>
+{% endblock %}

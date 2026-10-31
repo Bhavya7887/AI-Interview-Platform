@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}New interview · AI Interviewer{% endblock %}
+{% block content %}
+<section class="page-heading mb-4">
+  <span class="eyebrow">CREATE A PRACTICE SESSION</span>
+  <h1>Prepare for your <span class="gradient-text">next opportunity.</span></h1>
+  <p class="lead">Set your target role and experience level. Your AI interviewer will build a focused practice session.</p>
+</section>
+
+<div class="row g-4 align-items-start">
+  <div class="col-lg-8">
+    <section class="panel setup-panel">
+      <div class="section-heading mb-4">
+        <div><span class="eyebrow">SESSION SETUP</span><h2 class="h4 mb-1">Interview details</h2><p class="muted mb-0">Choose the settings that match your goal.</p></div>
+        <span class="step-indicator">01 <span>/</span> 03</span>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" class="setup-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="row g-3">
+          {% for field in form %}
+            <div class="{% if field.name == 'job_description' or field.name == 'resume_file' %}col-12{% else %}col-md-6{% endif %}">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {% if field.name == 'resume_file' %}
+                <div class="upload-zone">
+                  <span class="upload-symbol">↑</span>
+                  <div class="upload-copy"><strong>Upload your resume</strong><span>PDF or DOCX · Optional, but recommended</span></div>
+                  {{ field }}
+                </div>
+              {% else %}
+                {{ field }}
+              {% endif %}
+              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+              {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="setup-footer mt-4">
+          <div><strong>Ready when you are</strong><p class="muted small mb-0">Your answers will be evaluated after each submission.</p></div>
+          <button class="btn btn-primary btn-lg" type="submit">Start AI interview <span aria-hidden="true">→</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="col-lg-4">
+    <aside class="panel side-info-panel mb-3">
+      <div class="info-illustration"><div class="info-orb">✦</div><span class="info-spark spark-a">✧</span><span class="info-spark spark-b">✦</span></div>
+      <span class="eyebrow">YOUR AI COACH</span>
+      <h2 class="h5 mt-2">Practice with purpose</h2>
+      <p class="muted">Use a realistic role and job description to make your practice more relevant.</p>
+      <ul class="feature-list">
+        <li><span>✓</span> Role-focused questions</li>
+        <li><span>✓</span> Timed answer practice</li>
+        <li><span>✓</span> Score and written feedback</li>
+        <li><span>✓</span> Reviewable interview history</li>
+      </ul>
+    </aside>
+    <aside class="mini-tip"><span class="tip-icon">✧</span><div><strong>Quick tip</strong><p class="muted mb-0">Structure answers with a clear point, reasoning, and a concrete example.</p></div></aside>
+  </div>
+</div>
+{% endblock %}

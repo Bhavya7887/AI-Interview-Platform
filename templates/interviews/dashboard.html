@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · AI Interviewer{% endblock %}
+{% block content %}
+<section class="dashboard-hero mb-4">
+  <div class="hero-copy">
+    <span class="eyebrow"><span class="status-dot"></span> YOUR PRACTICE WORKSPACE</span>
+    <h1>Welcome back, <span class="gradient-text">{{ request.user.username }}</span>.</h1>
+    <p class="lead">Build confidence one interview at a time. Your progress, sessions and feedback live here.</p>
+    <div class="hero-actions">
+      <a href="{% url 'home' %}" class="btn btn-primary btn-lg">＋ Start an interview</a>
+      <span class="muted small">AI-powered practice · Personal progress tracking</span>
+    </div>
+  </div>
+  <div class="hero-orbit" aria-hidden="true">
+    <div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div>
+    <div class="orbit-core"><span>AI</span><small>COACH</small></div>
+    <span class="orbit-chip chip-top">Practice</span><span class="orbit-chip chip-bottom">Improve</span>
+  </div>
+</section>
+
+<section class="row g-3 mb-4" aria-label="Interview statistics">
+  <div class="col-6 col-xl-3">
+    <article class="metric metric-violet">
+      <div class="metric-top"><span class="metric-icon">▦</span><span class="metric-label">Total interviews</span></div>
+      <strong>{{ total_interviews }}</strong><small>All your practice sessions</small>
+    </article>
+  </div>
+  <div class="col-6 col-xl-3">
+    <article class="metric metric-green">
+      <div class="metric-top"><span class="metric-icon">✓</span><span class="metric-label">Completed</span></div>
+      <strong>{{ completed_interviews }}</strong><small>Finished sessions</small>
+    </article>
+  </div>
+  <div class="col-6 col-xl-3">
+    <article class="metric metric-blue">
+      <div class="metric-top"><span class="metric-icon">↗</span><span class="metric-label">Average score</span></div>
+      <strong>{{ average_score }}<span class="metric-unit">/10</span></strong><small>Across evaluated answers</small>
+    </article>
+  </div>
+  <div class="col-6 col-xl-3">
+    <article class="metric metric-amber">
+      <div class="metric-top"><span class="metric-icon">✳</span><span class="metric-label">Answers evaluated</span></div>
+      <strong>{{ total_answers }}</strong><small>Feedback opportunities</small>
+    </article>
+  </div>
+</section>
+
+<section class="panel history-panel">
+  <div class="section-heading">
+    <div>
+      <span class="eyebrow">YOUR ACTIVITY</span>
+      <h2 class="h4 mb-1">Recent interviews</h2>
+      <p class="muted mb-0">Pick up where you left off or review completed feedback.</p>
+    </div>
+    <a href="{% url 'home' %}" class="btn btn-outline-light">New session <span aria-hidden="true">↗</span></a>
+  </div>
+
+  {% if interviews %}
+    <div class="table-responsive interview-table-wrap">
+      <table class="table align-middle interview-table mb-0">
+        <thead><tr><th>Role</th><th>Level</th><th>Date</th><th>Status</th><th>Score</th><th class="text-end">Action</th></tr></thead>
+        <tbody>
+          {% for interview in interviews %}
+          <tr>
+            <td>
+              <div class="role-cell"><span class="role-icon">✦</span><div><strong>{{ interview.role }}</strong><small>Interview session</small></div></div>
+            </td>
+            <td><span class="level-pill">{{ interview.level }}</span></td>
+            <td class="date-cell">{{ interview.created_at|date:"M j, Y" }}</td>
+            <td>
+              {% if interview.completed %}
+                <span class="state-pill state-complete"><span></span> Completed</span>
+              {% else %}
+                <span class="state-pill state-progress"><span></span> In progress</span>
+              {% endif %}
+            </td>
+            <td><strong class="table-score">{{ interview.average_score }}<span>/10</span></strong></td>
+            <td class="text-end">
+              {% if interview.completed %}
+                <a class="btn btn-sm btn-outline-light table-action" href="{% url 'report' interview.public_id %}">View report <span aria-hidden="true">→</span></a>
+              {% else %}
+                <a class="btn btn-sm btn-primary table-action" href="{% url 'interview_detail' interview.public_id %}">Continue <span aria-hidden="true">→</span></a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">✦</div>
+      <h3 class="h5">Your first interview starts here</h3>
+      <p class="muted">Create a practice session and your history, scores and AI feedback will appear here.</p>
+      <a href="{% url 'home' %}" class="btn btn-primary">Start your first interview <span aria-hidden="true">→</span></a>
+    </div>
+  {% endif %}
+</section>
+
+<div class="dashboard-note mt-3">
+  <span class="note-icon">ⓘ</span>
+  <p class="mb-0">Use scores as a guide, not a verdict. Consistent practice and reviewing your feedback are what drive improvement.</p>
+</div>
+{% endblock %}

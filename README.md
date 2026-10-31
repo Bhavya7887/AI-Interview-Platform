@@ -68,7 +68,6 @@ The goal is simple: help candidates prepare with confidence.
 
 ## 🖥️ Application Preview
 
-> Replace the screenshot filenames below with your actual screenshots.
 
 ### Main Application
 

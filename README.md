@@ -74,9 +74,6 @@ The goal is simple: help candidates prepare with confidence.
 
 ![AI Interviewer Home](screenshots/home.png)
 
-### Resume Upload
-
-![Resume Upload](screenshots/resume upload.png)
 
 ### AI Mock Interview
 

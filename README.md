@@ -76,15 +76,15 @@ The goal is simple: help candidates prepare with confidence.
 
 ### Resume Upload
 
-![Resume Upload](screenshots/resume-upload.png)
+![Resume Upload](screenshots/resume upload.png)
 
 ### AI Mock Interview
 
-![AI Mock Interview](screenshots/mock-interview.png)
+![AI Mock Interview](screenshots/interview.png)
 
 ### Performance Feedback
 
-![AI Feedback Report](screenshots/feedback-report.png)
+![AI Feedback Report](screenshots/feedback.png)
 
 ### Personalized Learning Roadmap
 
